@@ -14,6 +14,7 @@ const cfg = {
 
 export const FIREBASE_READY = Boolean(cfg.apiKey && cfg.projectId);
 export const OWNER_UID = import.meta.env.VITE_OWNER_UID || null;
+export const OWNER_EMAIL = 'mdulin@gmail.com';
 
 let app = null;
 let auth = null;

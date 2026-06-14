@@ -7,7 +7,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
-import { auth, db, provider, FIREBASE_READY, OWNER_UID } from './firebase';
+import { auth, db, provider, FIREBASE_READY, OWNER_EMAIL } from './firebase';
 
 const ET = 'America/New_York';
 export const todayLocal = () => new Intl.DateTimeFormat('en-CA', { timeZone: ET, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
@@ -41,23 +41,22 @@ export function useNutrition() {
     return onAuthStateChanged(auth, (u) => { setUser(u); setAuthReady(true); });
   }, []);
 
-  const uid = user?.uid || OWNER_UID;
-  const isOwner = !OWNER_UID || (user && user.uid === OWNER_UID);
+  const isOwner = !!user && user.email === OWNER_EMAIL;
 
   useEffect(() => {
     if (!FIREBASE_READY || !user || !isOwner) return;
-    return onSnapshot(doc(db, 'nutrition', uid), (snap) => {
+    return onSnapshot(doc(db, 'nutrition', 'data'), (snap) => {
       const d = snap.data() || {};
       setData({ recipes: d.recipes || [], mealPrep: d.mealPrep || [], log: d.log || [] });
     }, (e) => console.error('nutrition listener', e));
-  }, [user, uid, isOwner]);
+  }, [user, isOwner]);
 
   const patch = useCallback(async (next) => {
     if (demo) { setData((p) => ({ ...p, ...next })); return; }
     if (!user) return;
-    const ref = doc(db, 'nutrition', uid);
+    const ref = doc(db, 'nutrition', 'data');
     try { await updateDoc(ref, next); } catch { await setDoc(ref, next, { merge: true }); }
-  }, [demo, user, uid]);
+  }, [demo, user]);
 
   const toggleSaveRecipe = useCallback((id) => {
     setData((p) => { const recipes = p.recipes.map((r) => (r.id === id ? { ...r, saved: !r.saved } : r)); patch({ recipes }); return { ...p, recipes }; });
