@@ -6,6 +6,15 @@ import { useNutrition, todayLocal } from './useNutrition';
 const BUILD = typeof __BUILD__ !== 'undefined' ? __BUILD__ : 'dev';
 const TABS = [['recipes', '📖 Recipes'], ['mealprep', '🥗 Meal Prep'], ['log', '📝 Log']];
 
+function relTime(iso) {
+  if (!iso) return '';
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
 export default function App() {
   const { user, authReady, isOwner, demo, data, toggleSaveRecipe, addLog, deleteLog, login, logout } = useNutrition();
   const [tab, setTab] = useState('recipes');
@@ -40,7 +49,7 @@ export default function App() {
 
   return (
     <div className="wrap">
-      <header className="head"><div><span className="logo-sm">🥗</span> <b>Mike's Nutrition</b></div>{FIREBASE_READY && <button className="btn def sm" onClick={logout}>Sign out</button>}</header>
+      <header className="head"><div><div><span className="logo-sm">🥗</span> <b>Mike's Nutrition</b></div>{data.refreshedAt && <div className="dim" style={{ fontSize: 11 }}>Rupert updated {relTime(data.refreshedAt)}</div>}</div>{FIREBASE_READY && <button className="btn def sm" onClick={logout}>Sign out</button>}</header>
       {demo && <div className="banner">Demo mode — connect Firebase to see your real data. Sample shown.</div>}
 
       <nav className="chips">{TABS.map(([id, label]) => <button key={id} className={'chip' + (tab === id ? ' on' : '')} onClick={() => setTab(id)}>{label}</button>)}</nav>

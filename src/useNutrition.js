@@ -33,7 +33,7 @@ const SEED = {
 export function useNutrition() {
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(!FIREBASE_READY);
-  const [data, setData] = useState(FIREBASE_READY ? { recipes: [], mealPrep: [], log: [] } : SEED);
+  const [data, setData] = useState(FIREBASE_READY ? { recipes: [], mealPrep: [], log: [] } : { ...SEED, refreshedAt: new Date(Date.now() - 6 * 3600 * 1000).toISOString() });
   const demo = !FIREBASE_READY;
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export function useNutrition() {
     if (!FIREBASE_READY || !user || !isOwner) return;
     return onSnapshot(doc(db, 'nutrition', 'data'), (snap) => {
       const d = snap.data() || {};
-      setData({ recipes: d.recipes || [], mealPrep: d.mealPrep || [], log: d.log || [] });
+      setData({ recipes: d.recipes || [], mealPrep: d.mealPrep || [], log: d.log || [], refreshedAt: d.refreshedAt || null });
     }, (e) => console.error('nutrition listener', e));
   }, [user, isOwner]);
 
