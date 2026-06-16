@@ -4,3 +4,7 @@ dist
 .env.local
 .DS_Store
 *.log
+
+# committed by mistake — Vercel env values, keep local only
+.env.vercel.txt
+.env.*.txt
